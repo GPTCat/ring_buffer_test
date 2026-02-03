@@ -200,7 +200,8 @@ static void *producer_variable_size(void *arg) {
     size_t msg_id = 0;
 
     while (msg_id < args->num_messages) {
-        size_t size = (msg_id % 64) + 1;
+        /* Size varies from 4-64 bytes (need at least 3 for header + 1 for data) */
+        size_t size = (msg_id % 61) + 4;
 
         data[0] = (uint8_t)(msg_id & 0xFF);
         data[1] = (uint8_t)((msg_id >> 8) & 0xFF);
@@ -227,7 +228,7 @@ static void *consumer_variable_size(void *arg) {
     size_t expected_id = 0;
 
     while (expected_id < args->num_messages) {
-        size_t expected_size = (expected_id % 64) + 1;
+        size_t expected_size = (expected_id % 61) + 4;
 
         if (ring_pop(args->rb, data, expected_size)) {
             size_t got_id = data[0] | ((size_t)data[1] << 8);
